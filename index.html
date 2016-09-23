@@ -95,7 +95,7 @@
         
         field.appendChild(snake[0]);
         
-        for(var i = 1; i < 100; i++){
+        for(var i = 1; i < 1; i++){
         
           snake[i] = document.createElement('div');
           snake[i].className = "snake_tail";
@@ -106,6 +106,16 @@
           //console.log(snake[0].style.top);//test
           
           field.appendChild(snake[i]);
+        }
+        
+        function addTailElement(section){
+          snake[section] = document.createElement('div');
+          snake[section].className = "snake_tail";
+          
+          snake[section].style.left = snake[section - 1].offsetLeft + "px";
+          snake[section].style.top = snake[section - 1].offsetTop + "px";
+          
+          field.appendChild(snake[section]);
         }
         
         var x_speed = 0;
@@ -171,6 +181,8 @@
                 console.log("совмещение", i, sprites[i].className);
                 if(sprites[i].className == 'apples'){
                   sprites[i].remove();
+                  addTailElement(snake.length);
+                  go();
                   new Apple;
                 }else if(sprites[i].className == 'snake_tail'){
                   clearInterval(timerId);
