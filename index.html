@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+    .field{
+      position:relative;
+      background:green;
+      height:500px;
+      width:500px;
+      top:100px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+    .snake_head{
+      position:fixed;
+      width:9px;
+      height:9px;
+      background:gray;
+      border: 1px solid black;
+      border-radius:4px 4px 4px 4px;
+    }
+    .snake_tail{
+      position:fixed;
+      width:9px;
+      height:9px;
+      background: brown;
+      border: black 1px solid;
+      border-radius:4px 4px 4px 4px;
+    }
+    .apples{
+      position:fixed;
+      background:yellow;
+      width: 15px;
+      height: 15px;
+      border: red 1px solid;
+      border-radius: 10px 10px 10px 10px;
+    }
+    </style>
+  </head>
+  <body>
+    <input type="button" value="start" onclick="startGame()" />
+    <div class="field" id="field">
+      
+    </div>
+    
+    <script>
+    
+    "use strict"
+    var startGame = function(){
+      //console.log("Ура Работает1!!!");next
+      var field = document.getElementById("field");
+      var x_0 = field.offsetLeft;
+      var y_0 = field.offsetTop;
+      var x_max = x_0 + field.offsetWidth;
+      var y_max = y_0 + field.offsetHeight;
+      console.log(x_0,y_0,x_max,y_max);//test
+      
+      
+      
+      
+      onclick = function(e){
+      console.log(e);
+      
+      
+      
+      }
+      
+      
+      
+      var Apple = function(){
+        var apple = document.createElement('div');
+        apple.className = 'apples';
+        
+        apple.style.left = Math.random() * (field.offsetWidth - 20) + field.offsetLeft + 'px';
+        apple.style.top = Math.random() * (field.offsetHeight - 20) + field.offsetTop + 'px';
+        
+        field.appendChild(apple);
+      }
+      
+      
+      
+      var Snake = function(){
+        var snake = [];
+        snake[0] = document.createElement('div');
+        snake[0].className = "snake_head";
+        
+        var posX = field.offsetWidth/2;
+        var posY = field.offsetHeight/2;
+        
+        snake[0].style.left = posX + "px";
+        snake[0].style.top = posY + "px";
+        
+        //console.log(snake[0].style.top);//test
+        
+        field.appendChild(snake[0]);
+        
+        for(var i = 1; i < 100; i++){
+        
+          snake[i] = document.createElement('div');
+          snake[i].className = "snake_tail";
+          
+          snake[i].style.left = posX + "px";
+          snake[i].style.top = posY + "px";
+          
+          //console.log(snake[0].style.top);//test
+          
+          field.appendChild(snake[i]);
+        }
+        
+        var x_speed = 0;
+        var y_speed = 0;
+        
+        
+        
+        function move(section){
+          //console.log(section);
+          
+          var posX1;
+          var posY1;
+          
+          
+          if(section){
+            
+            posX1 = snake[section - 1].offsetLeft;
+            posY1 = snake[section - 1].offsetTop;
+
+            move(section - 1);
+          }else{
+            
+            posX += 15 * x_speed;
+            posY += 15 * y_speed;
+            
+            if((posX >= (field.offsetLeft + field.offsetWidth - 15))||(posX < field.offsetLeft + 5)){
+              console.log(field.offsetLeft, field.offsetWidth, 'x', posX, posY);
+              clearInterval(timerId);
+            }else if((posY >= (field.offsetTop + field.offsetHeight - 15))||(posY < field.offsetTop + 5)){
+              clearInterval(timerId);
+              console.log(field.offsetTop, field.offsetHeight, 'y', posX, posY);
+            }
+            
+            
+            posX1 = posX;
+            posY1 = posY;
+            if(mix_sprite(posX1, posY1)==0){
+              clearInterval(timerId);
+              
+              return;
+            }
+          }
+          
+          snake[section].style.left = posX1 + "px";
+          snake[section].style.top = posY1 + "px";
+          
+        }
+        
+        var timerId;
+        
+        function go(){
+          clearInterval(timerId);
+          timerId = setInterval(move, 100, snake.length - 1);
+        }
+        
+        
+        function mix_sprite(x, y){
+          var sprites = field.children;
+          //console.log(sprites.length);
+          for(var i = 0; i < sprites.length; i++){
+            if((x >= sprites[i].offsetLeft)&&(x <= sprites[i].offsetLeft + sprites[i].offsetWidth)){
+              if((y >= sprites[i].offsetTop)&&(y <= sprites[i].offsetTop + sprites[i].offsetHeight)){
+                console.log("совмещение", i, sprites[i].className);
+                if(sprites[i].className == 'apples'){
+                  sprites[i].remove();
+                  new Apple;
+                }else if(sprites[i].className == 'snake_tail'){
+                  clearInterval(timerId);
+                  //field.remove();
+                  snake= 0;
+                  
+                  clearInterval(timerId);
+                  i = 0;
+                  break;
+                }
+              }
+            }
+          }
+          
+          return i;
+        }
+          
+          
+        onkeydown = function(ek){
+          console.log(ek);
+          console.log(ek.key);
+          var key = ek.key;
+          switch(key){
+            case 'ArrowRight':
+              console.log('Вправо');
+              if(x_speed != -1){
+                y_speed = 0;
+                x_speed = 1;
+                go();
+              }
+              break;
+            case 'ArrowLeft':
+              if(x_speed != 1){
+                y_speed = 0;
+                x_speed = -1;
+                go();
+              }
+              break;
+            case 'ArrowUp':
+              if(y_speed != 1){
+                x_speed = 0;
+                y_speed = -1;
+                go();
+              }
+              break;
+            case 'ArrowDown':
+              if(y_speed != -1){
+                x_speed = 0;
+                y_speed = 1;
+                go();
+              }
+              break;
+            default:
+              
+              /*x_speed = 0;
+              y_speed = 0;*/
+              clearInterval(timerId);
+              
+              break;
+          }
+        }
+      }
+      //модификация для GIT2
+      var snake_object = new Snake();
+      
+      for(var i = 0; i < 2; i++){
+        new Apple;
+      }
+    }
+    </script>
+  </body>
+</html>
