@@ -14,8 +14,8 @@
     }
     .snake_head{
       position:fixed;
-      width:9px;
-      height:9px;
+      width:10px;
+      height:10px;
       background:gray;
       border: 1px solid black;
       border-radius:4px 4px 4px 4px;
@@ -27,6 +27,14 @@
       background: brown;
       border: black 1px solid;
       border-radius:4px 4px 4px 4px;
+    }
+    .snake_tail_big{
+      position:fixed;
+      width:15px;
+      height:15px;
+      background: brown;
+      border: black 1px solid;
+      border-radius:8px 8px 8px 8px;
     }
     .apples{
       position:fixed;
@@ -48,25 +56,24 @@
     
     "use strict"
     var startGame = function(){
-      //console.log("Ура Работает1!!!");next
+      //Создание поля игры
       var field = document.getElementById("field");
       var x_0 = field.offsetLeft;
       var y_0 = field.offsetTop;
       var x_max = x_0 + field.offsetWidth;
       var y_max = y_0 + field.offsetHeight;
-      console.log(x_0,y_0,x_max,y_max);//test
-      
-      
-      
-      
-      onclick = function(e){
-      console.log(e);
-      
-      
-      
+      var clearElements = field.children;
+      for(var i = clearElements.length - 1; i >= 0; i--){
+        clearElements[i].remove();
       }
       
-      
+      /* тест
+      console.log(x_0,y_0,x_max,y_max);//test
+*/
+      onclick = function(e){
+        console.log(e);
+      }
+     
       
       var Apple = function(){
         var apple = document.createElement('div');
@@ -83,10 +90,10 @@
       var Snake = function(){
         var snake = [];
         snake[0] = document.createElement('div');
-        snake[0].className = "snake_head";
+        snake[0].className = "snake_head";//ГОЛОВА
         
-        var posX = field.offsetWidth/2;
-        var posY = field.offsetHeight/2;
+        var posX = field.offsetTop + 200;
+        var posY = field.offsetTop + 200;
         
         snake[0].style.left = posX + "px";
         snake[0].style.top = posY + "px";
@@ -95,10 +102,10 @@
         
         field.appendChild(snake[0]);
         
-        for(var i = 1; i < 1; i++){
+        for(var i = 1; i < 10; i++){
         
           snake[i] = document.createElement('div');
-          snake[i].className = "snake_tail";
+          snake[i].className = "snake_tail";//хвост
           
           snake[i].style.left = posX + "px";
           snake[i].style.top = posY + "px";
@@ -108,6 +115,7 @@
           field.appendChild(snake[i]);
         }
         
+        //добавление сегмента хвоста
         function addTailElement(section){
           snake[section] = document.createElement('div');
           snake[section].className = "snake_tail";
@@ -118,8 +126,8 @@
           field.appendChild(snake[section]);
         }
         
-        var x_speed = 0;
-        var y_speed = 0;
+        var x_speed = 0;//скорость и напрвление
+        var y_speed = 0;//созданы и обнулены
         
         
         
@@ -130,21 +138,24 @@
           var posY1;
           
           
-          if(section){
+          if(section){//если не голова
             
             posX1 = snake[section - 1].offsetLeft;
             posY1 = snake[section - 1].offsetTop;
+            if(section > 1){
+              snake[section].className = snake[section - 1].className;
+            }
 
             move(section - 1);
-          }else{
+          }else{//если голова
             
             posX += 15 * x_speed;
             posY += 15 * y_speed;
             
-            if((posX >= (field.offsetLeft + field.offsetWidth - 15))||(posX < field.offsetLeft + 5)){
+            if((posX >= (field.offsetLeft + field.offsetWidth - 15))||(posX < field.offsetLeft + 10)){
               console.log(field.offsetLeft, field.offsetWidth, 'x', posX, posY);
               clearInterval(timerId);
-            }else if((posY >= (field.offsetTop + field.offsetHeight - 15))||(posY < field.offsetTop + 5)){
+            }else if((posY >= (field.offsetTop + field.offsetHeight - 20))||(posY < field.offsetTop + 10)){
               clearInterval(timerId);
               console.log(field.offsetTop, field.offsetHeight, 'y', posX, posY);
             }
@@ -152,15 +163,20 @@
             
             posX1 = posX;
             posY1 = posY;
-            if(mix_sprite(posX1, posY1)==0){
-              clearInterval(timerId);
-              
+            
+            mix_sprite(posX1, posY1);
+            /*
+            if(!(mix_sprite(posX1, posY1))){
               return;
-            }
+            }*/
           }
-          
-          snake[section].style.left = posX1 + "px";
-          snake[section].style.top = posY1 + "px";
+          try{
+            snake[section].style.left = posX1 + "px";
+            snake[section].style.top = posY1 + "px";
+          } catch(e){
+            clearInterval(timerId);
+            //alert("Ошибка!");
+          }
           
         }
         
@@ -176,28 +192,26 @@
           var sprites = field.children;
           //console.log(sprites.length);
           for(var i = 0; i < sprites.length; i++){
-            if((x >= sprites[i].offsetLeft)&&(x <= sprites[i].offsetLeft + sprites[i].offsetWidth)){
-              if((y >= sprites[i].offsetTop)&&(y <= sprites[i].offsetTop + sprites[i].offsetHeight)){
+            if((x >= sprites[i].offsetLeft-9)&&(x <= sprites[i].offsetLeft + sprites[i].offsetWidth - 3)){
+              if((y >= sprites[i].offsetTop-9)&&(y <= sprites[i].offsetTop + sprites[i].offsetHeight - 3)){
                 console.log("совмещение", i, sprites[i].className);
-                if(sprites[i].className == 'apples'){
+                if(sprites[i].className == 'apples'){//если яблоко
                   sprites[i].remove();
                   addTailElement(snake.length);
+                  snake[2].className = 'snake_tail_big';
                   go();
                   new Apple;
-                }else if(sprites[i].className == 'snake_tail'){
-                  clearInterval(timerId);
+                }else if(sprites[i].className == 'snake_tail'){//если хвост
+                  //clearInterval(timerId);
                   //field.remove();
                   snake= 0;
-                  
+                  onkeydown = 0;
                   clearInterval(timerId);
-                  i = 0;
                   break;
                 }
               }
             }
           }
-          
-          return i;
         }
           
           
@@ -246,9 +260,9 @@
         }
       }
       //модификация для GIT2
-      var snake_object = new Snake();
+      var snake_object = new Snake();//СОЗДАНИЕ ЧЕРВЯ
       
-      for(var i = 0; i < 2; i++){
+      for(var i = 0; i < 2; i++){//СОЗДАНИЕ ЯБЛОК
         new Apple;
       }
     }
